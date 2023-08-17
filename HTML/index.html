@@ -1,0 +1,389 @@
+<!DOCTYPE HTML>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="google-signin-client_id" content="777567056554-r4lpb8q5p9rm3u166ca3o3pimtr16abf.apps.googleusercontent.com">
+    <meta name="google-signin-scope" content="profile email">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="https://apis.google.com/js/api:client.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+
+    <title>ULoha5</title>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/style.css" media="screen"/>
+
+
+    
+</head>
+
+<body>
+<header>
+    <h1>Spánok ako dôležitá súčasť zdravia</h1>
+</header>
+
+
+<nav class="page-navigation">
+    <div class="logo">RUSBUIN</div>
+      <input type="checkbox" id="checkbox_t"/>
+      <label for="checkbox_t" class="burger"><span class="burger-line"></span></label>
+    <div class="menu">
+    <ul class="nav-list">
+   
+        <li><a href="#welcome">Welcome!</a></li>
+
+        <li><a href="#articles/1/0">Articles</a></li>
+        <li><a href="#opinions">Visitor opinions</a></li>
+        <li><a href="#addOpinion">Add your opinion</a></li>
+        <li><a href="#artInsert">Add article</a></li>
+        <li id="contentsign">
+            <button id="btnGoogle">SignIn with Google</button>
+        </li>
+    </ul>
+    
+  </div>
+  
+</nav>
+
+
+
+<main id="router-view">
+</main>
+
+<footer>
+    <a> Autorka: Ruslana Buinytska </a> <br>
+    <a href="mailto:ruslana.buinytska@student.tuke.sk" target="_blank"> ruslana.buinytska@student.tuke.sk </a>
+</footer>
+
+
+<!--Templates for html, dynamically inserted by the router -->
+
+<script id="template-welcome" type="text/template">
+    <article class="main-div">
+        <h2>Welcome!</h2>
+        <p> Zdravý spánok je jednou z hlavných zložiek dobrého zdravia spolu s vyváženou stravou a pravidelnou fyzickou aktivitou.
+            Z neustáleho nedostatku spánku sa u človeka môžu vyvinúť rôzne choroby a poruchy, podráždenosť, zábudlivosť.</p>
+            <div class="tpix">
+                <img src="fig/son.jpg" alt="spanok" class="responsive">
+            </div>
+    </article>
+</script>
+
+
+
+
+<script id="template-articles" type="text/template">
+    <div id="findArt">
+                        <input type="input" class="form_field" placeholder="Find article by tag:" name="name" id='tagName' required/>
+<!--                     <label for="tagName" class="form__label">Find article by tag:</label>-->
+    </div>
+    <br>
+        <a href="#articles/1/0/{{tagName}}" class="findButton">find</a>
+    <br>
+                   
+                {{#articles}}
+    <br>
+                <article class="nazor1">
+                    <!-- <h4>id: {{id}}</h4> -->
+                    <h2><a href="{{detailLink}}">{{title}}</a></h2>
+                    <p>by {{author}}</p>
+                </article>
+                {{/articles}}
+                <footer>
+                    {{#data}}
+<!--                    <p>-->
+<!--                        Displaying page {{currPage}} of {{pageCount}} pages.-->
+<!--                    </p>-->
+<!--                   -->
+                    {{#prevPage}}
+                    <a href="#articles/{{prevPage}}/{{artCount}}/{{off}}" class="linkAsButton"><< Previous page</a>
+                    {{/prevPage}}
+                    {{#nextPage}}
+                    <a href="#articles/{{nextPage}}/{{artCount}}/{{off}}" class="linkAsButton">Next page >></a>
+                    {{/nextPage}}
+                    {{/data}}
+
+                </footer>
+</script>
+
+
+<script id="template-articles-error" type="text/template">
+                <article>
+                    <h2>Article(s) acquisition failed</h2>
+                    <p>
+                        {{errMessage}}
+                    </p>
+                </article>
+</script>
+
+<script id="template-opinions" type="text/template">
+    <article  id="artOpinions" >
+
+        <h2>Visitor Opinions</h2>
+        {{#.}}
+        <section class="nazor1">
+            <img class ="imag" src="{{ imageValue }}">
+            <h2>{{nopName}} <i class="comment_i">{{ created }}</i> </h2> <p>{{nopOpn}}</p>
+            <p>{{nopEmail}}</p> <p>{{rod}}</p>
+            <p>Chronotyp: {{ slovo }}</p>
+        </section>
+        {{/.}}
+        {{^.}}
+        <section>
+            Sorry, no opinions found.
+        </section>
+        {{/.}}
+        
+    </article>
+</script>     
+
+<script id="template-addOpinion" type="text/template" >
+
+    <article  id="artOpnFrm" class="opin">
+            <form id="opnFrm">
+            <h1 title="Form">zaplnte ...</h1>
+            <div class="group_f">
+              <label for="name" class="label">Vaše meno:<span class="red">*</span></label>
+              <input required type="text" name ="name" id="name"/>
+            </div>
+    
+            <div class="group_f">
+            <label for="email" class="label">Email: <span class="red">*</span></label>
+              <input  type="email" name ="email" id="email" required />
+    
+            </div>
+            <div class="group_f">
+              <label for="url" class="label">Url:
+              <input type="url" name ="url" id="url" >
+            </label>
+            </div>
+    
+            <div class="group_f">
+    
+              <input type="radio" name="rod" id="zena" value="zena">
+              <label for="zena"  class="bot" > Zena </label><br>
+    
+              <input type="radio" name="rod" id="muz" value="muz">
+              <label for="muz" class="bot"> Muz </label>
+    
+            </div>
+    
+            <div >
+              <label for="vysledok" class="label1">Oboznámiť o spracovanie údajov </label>
+                <input class="input" type="checkbox" name="vysledok" id="vysledok">
+                
+            </div>
+    
+    <div class="group_f">
+        <label for="slovo">Aký je váš chronotyp?</label>
+        <input type="search" list="search_keyword" id="slovo" name="slovo" >
+        <datalist id="search_keyword">
+            <option value="skřivan (ráno)">
+            <option value="holub (cez deň)">
+            <option value="sova (večer)">
+        </datalist>
+    </div>
+    
+            <div class="group_f">
+              <div class="wrap">
+              <label for="nazor">Vas nazor <span class="red">*</span></label>
+              <textarea name="nazor" id="nazor" required></textarea>
+    
+            </div>
+            </div>
+    
+            <div class="bottom">
+                
+            <div class="group_f">
+              <button class="button" type="submit" value="push" id="send-form">Submit</button>
+            </div>
+    
+            <div class="group_f">
+              <button class="button" type="reset">Reset</button>
+            </div>
+            </div>
+        </form>
+    </article>
+</script> 
+
+
+
+
+
+<script id="template-article" type="text/template">
+
+                <article class="nazor1">
+                    <h3>{{title}}</h3>
+                    <p>
+                        by {{author}}
+                    </p>
+                    {{#imageLink}}
+                    <figure>
+                        <img src="{{imageLink}}" alt="article figure"/>
+                    </figure>
+                    {{/imageLink}}
+                    <div>{{{content}}}</div>
+                    <p>
+                        Keywords:
+                        {{tags}}
+                    </p>
+                </article>
+                <h3 class="comments">Comments:</h3>
+
+
+                {{#JSONComments}}
+                {{#comments}}
+
+                <section class="nazor1">
+
+                        <h2>Author: {{author}}</h2>
+                        <p>Comment: {{text}}</p>
+                        <h3>Date: {{dateCreated}}</h3>
+                    </section>
+                {{/comments}}
+                {{/JSONComments}}
+
+                <button type="button" id = "increment-count-comm" class="findButton">Previous</button>
+                <button type="button" id = "decrement-count-comm" class="findButton">Next</button><br>
+                <br>
+                <a href="#show" class="findButton"> Write comment </a>
+                <div id='form-wrap'>
+              
+                <form id="articleForm3">
+                                <h3>New comment</h3>
+                                <input type="text" class="form__field" name="author" id="author3" size="50" maxlength="100"
+                                placeholder="e.g. Ján Trieska"/>
+                                <label class="form__label" for="author2">Author:</label>
+                                        <input type="text" class="form__field" name="title" id="title3" size="50" maxlength="100"
+                                               pattern="\S[\S\s]*" placeholder="e.g. Good."/>
+                                        <!-- <label class="form__label" for="title2">Your comment:</label> -->
+
+                        <a href="{{addComm}}" class="findButton"> Add comment </a>
+                    </form>
+                </div>
+                
+                <footer>
+                    <a href="{{backLink}}" class="findButton"><< Back</a>
+                    <a href="{{editLink}}" class="findButton">Edit</a>
+                    <a href="{{deleteLink}}" class="findButton">Delete</a>
+                </footer>
+</script> 
+
+<script id="template-addArticle" type="text/template">
+                <article>
+                    
+                    <h1 title="Form">Add your article</h1>
+        
+                    <form id="articleForm2">
+                    <label class="form__label" for="author2">Author:</label>
+                    <input type="text" class="form__field" name="author" id="author2" size="20"
+                    maxlength="50" placeholder="Name" required/>
+                    <label class="form__label" for="title2">Title:</label>
+                    <input type="text" class="form__field" name="title" id="title2" size="50"
+                    maxlength="100" pattern="\S[\S\s]*"
+                    placeholder="Story" required/>
+                    <label class="form__label" for="imageLink2">Image (url):</label>
+                    <input type="url" class="form__field" name="imageLink" id="imageLink2" size="50"
+                        placeholder="Link" maxlength="100"/>
+                        
+                        <fieldset class="added hiddenElm2" id="fsetFileUpload2">
+                            <legend>Image Upload</legend>
+                            <input class="form-control form-control-lg" id="formFileLg" type="file" style="
+                                  direction: rtl;
+                              ">
+                            <br/>
+            
+                            <button type="button" id="btFileUpload2" class="findButton">
+                                Send image
+                            </button>
+                            <button type="button" id="btCancelFileUpload2" class="findButton">
+                                Cancel uploading
+                            </button>
+                        </fieldset>           
+                        <div class="group_f">
+                            <div class="wrap">
+                            <label class="form__label" for="content">Article content:</label>
+                                <textarea class="form__field"
+                            name="content" id="content2" spellcheck="true" lang="sk" cols="50"
+                            rows="3" placeholder="Opinion"
+                            required>
+                        </textarea>
+                  
+                          </div>
+                          </div>
+
+
+                        <label class="form__label" for="tags">Keywords:</label>
+                        <input type="text" class="form__field" name="tags" value="spanok" id="tags2" size="50"
+                        placeholder="e.g. village, drama"/>
+                        
+                        <button type="reset" class="findButton"> Reset Form</button>
+                        <button type="submit" class="findButton"> Add</button>
+
+                    </form>
+                </article>
+</script>
+
+
+
+
+
+<script id="template-article-form" type="text/template">
+                <article>
+                    <h2>{{formTitle}}</h2>
+                    <form id="articleForm">
+                                    <input type="text" class="form__field" name="author" id="author" value="{{author}}" size="50" maxlength="100"
+                                           placeholder="name"/>
+                                    <label class="form__label" for="author">Author:</label>
+                                    <input type="text" class="form__field" name="title" id="title" value="{{title}}" size="50" maxlength="100"
+                                           pattern="\S[\S\s]*" placeholder="Your story" required/>
+                                    <label class="form__label" for="title">Title:</label>
+                            
+                                    <input type="url" class="form__field" name="imageLink" id="imageLink" value="{{imageLink}}" size="50" maxlength="100"
+                                           pattern="\S[\S\s]*" placeholder="Link" required/>
+                                    <label class="form__label" for="imageLink">Image (url):</label>
+                                <label></label>
+                                <button type="button" id="btShowFileUpload" class="linkAsButton">
+                                    Upload image
+                                </button>
+                           
+                                <fieldset class="added hiddenElm" id="fsetFileUpload">
+                                    <legend>Image Upload</legend>
+                                    <input type="file" id="flElm" name="file" accept="image/jpeg, image/png"/>
+                                    <br/>
+                                    <button type="button" id="btFileUpload" class="linkAsButton">
+                                        Send image to server
+                                    </button>
+                                    <button type="button" id="btCancelFileUpload" class="linkAsButton">
+                                        Cancel uploading
+                                    </button>
+                                </fieldset>
+                                    <textarea name="content" id="content" spellcheck="true" lang="sk"
+                                              cols="50" rows="20" placeholder="Link" required>{{content}}</textarea>
+                                    <label class="form__label" for="content">Article content:</label>
+                        </textarea>
+                                    <input type="text" class="form__field" name="tags" id="tags" size="50" value="{{tags}}"
+                                           placeholder="e.g. village, drama"/>
+                                    <label class="form__label" for="tags">Keywords:</label>
+                        <button type="reset" class="linkAsButton"> Reset Form</button>
+                        <button type="submit" class="linkAsButton"> {{submitBtTitle}}</button>
+                    </form>
+                </article>
+                <footer>
+                    <a href="{{backLink}}" class="linkAsButton"><< Back</a>
+                </footer>
+</script>
+
+
+
+<script  type="module" src="js/index.js"></script>
+<script type="module" src="js/addOpinion.js"></script>
+<script type="module" src="js/articleFormsHandler.js"></script>    
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+<script src="./js/routes.js"></script>
+<script src="./js/signInOut.js"></script>
+<script>
+    startApp();
+</script>
+</body>
+</html>
