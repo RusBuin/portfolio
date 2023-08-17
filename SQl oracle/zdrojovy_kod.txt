@@ -1,0 +1,401 @@
+drop table "DRUH_IZBY" cascade constraints;
+drop table "HOTEL" cascade constraints;
+drop table "PRACOVNICI" cascade constraints;
+drop table "HOST" cascade constraints;
+drop table "IZBA" cascade constraints;
+drop table "REZERVACIA" cascade constraints;
+drop table "HOST_REZERVACIA" cascade constraints;
+
+--vytvorenie tabulky druh_izby 
+
+CREATE TABLE druh_izby (
+  id_druh_izby int PRIMARY KEY,
+  nazov VARCHAR2(50) NOT NULL,
+  cena DECIMAL(10, 2)
+);
+--sekvencia na generovanie primárnych kľúčov 
+drop SEQUENCE sequence1;
+    
+CREATE SEQUENCE sequence1 START WITH 1 INCREMENT BY 1;
+
+--trigger, ktorý bude vkladať hodnoty 
+
+CREATE OR REPLACE TRIGGER test_trigger
+BEFORE INSERT ON druh_izby
+FOR EACH ROW
+BEGIN
+  :NEW.id_druh_izby := sequence1.NEXTVAL;
+END;
+/
+    
+--vkladanie dat
+    
+INSERT INTO druh_izby (nazov, cena) VALUES('Jednolôžková', 30.00);
+INSERT INTO druh_izby (nazov, cena) VALUES('Dvojlôžková', 47.00);
+INSERT INTO druh_izby (nazov, cena) VALUES('Trojlôžková', 100.00);
+INSERT INTO druh_izby (nazov, cena) VALUES('Štvorlôžková', 150.00);
+INSERT INTO druh_izby (nazov, cena) VALUES('Izby typu „dormitory” ', 175.00);
+
+--SELECT * FROM druh_izby;
+
+--vytvorenie tabulky hotel
+CREATE TABLE hotel
+(
+  id_hotel INT PRIMARY KEY,
+  nazov VARCHAR2(40) NOT NULL,
+  ulica VARCHAR2(30),
+  cislo_domu int,
+  miesto VARCHAR2(25),
+  krajina VARCHAR2(25)
+);
+--sekvencia na generovanie primárnych kľúčov 
+drop SEQUENCE sequence2;
+    
+CREATE SEQUENCE sequence2 START WITH 1 INCREMENT BY 1;
+--trigger, ktorý bude vkladať hodnoty 
+CREATE OR REPLACE TRIGGER trigger2
+BEFORE INSERT ON hotel
+FOR EACH ROW
+BEGIN
+  :NEW.id_hotel := sequence2.NEXTVAL;
+END;
+/
+--vkladanie dat
+
+INSERT INTO hotel (nazov, ulica, cislo_domu, miesto, krajina) VALUES('Hotel Grand Palace', 'Hlavná ulica', 12, 'Košice', 'Slovensko');
+INSERT INTO hotel(nazov, ulica, cislo_domu, miesto, krajina)  VALUES('Penzión Kúria', 'Námestie osloboditeľov', 15, 'Bratislava', 'Slovensko');
+INSERT INTO hotel(nazov, ulica, cislo_domu, miesto, krajina)  VALUES('Hotel Zlatý Bažant', 'Dolná ulica', 12, 'Prešov', 'Slovensko');
+INSERT INTO hotel(nazov, ulica, cislo_domu, miesto, krajina)  VALUES('Chateau Appony', 'SNP', 123, 'Trnava', 'Slovensko');
+INSERT INTO hotel(nazov, ulica, cislo_domu, miesto, krajina)  VALUES('Hotel Zochova chata', 'Peremohy', 176,  'Kyiv', 'Ukrajina');
+INSERT INTO hotel(nazov, ulica, cislo_domu, miesto, krajina)  VALUES('Slovensko', 'Mierová', 789,  'Poprad', 'Slovensko');
+INSERT INTO hotel(nazov, ulica, cislo_domu, miesto, krajina)  VALUES('Penzión Berg', 'Shevchenko', 25,  'Lviv', 'Ukrajina');
+
+/*SELECT * FROM hotel;*/
+
+
+CREATE TABLE pracovnici
+(
+  id_pracovnika INT PRIMARY KEY,
+  rola VARCHAR2(25),
+  meno VARCHAR2(25) NOT NULL,
+  priezvisko VARCHAR2(25) NOT NULL,
+  pohlavie VARCHAR2(25),
+  rodne_cislo int UNIQUE,
+  email VARCHAR2(30),
+  mzda FLOAT,
+  id_hotel INT,
+  FOREIGN KEY (id_hotel) REFERENCES hotel(id_hotel)
+);
+
+    
+drop SEQUENCE sequence3;
+    
+CREATE SEQUENCE sequence3 START WITH 1 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER trigger3
+BEFORE INSERT ON pracovnici
+FOR EACH ROW
+BEGIN
+  :NEW.id_pracovnika:= sequence3.NEXTVAL;
+END;
+/
+-- trigger na overenie mzdy 
+    
+CREATE OR REPLACE TRIGGER validate_salary
+BEFORE INSERT OR UPDATE ON pracovnici
+FOR EACH ROW
+BEGIN
+IF :NEW.mzda < 0 THEN
+RAISE_APPLICATION_ERROR(-20001, 'Invalid salary entered');
+END IF;
+END;
+/
+
+    
+INSERT INTO pracovnici (rola, meno, priezvisko, pohlavie, rodne_cislo, email, mzda, id_hotel) VALUES('Recepčný', 'Marek', ' Novák', 'muz', 2548319, 'zuxebalu@gmail.com', -1200, 3);
+INSERT INTO pracovnici (rola, meno, priezvisko, pohlavie, rodne_cislo, email, mzda, id_hotel) VALUES('Služba izby', 'Veronika', 'Kováčová', 'zena', 9284753, 'xoqasobu@hotelcom', 850, 1);
+INSERT INTO pracovnici (rola, meno, priezvisko, pohlavie, rodne_cislo, email, mzda, id_hotel)  VALUES('Služba izby', 'Martin', 'Petrovič', 'muz', 6189254, 'gupokela@outlook.com', 920, 7);
+INSERT INTO pracovnici (rola, meno, priezvisko, pohlavie, rodne_cislo, email, mzda, id_hotel) VALUES('Recepčný', 'Jana', 'Horváthová', 'zena', 1873425 , 'mifilona@yahoo.com', 871, 7);
+INSERT INTO pracovnici (rola, meno, priezvisko, pohlavie, rodne_cislo, email, mzda, id_hotel) VALUES('Služba izby', 'Filip', 'Tóth', 'muz', 9345812, 'zonibuxe@protonmail.com', 920, 2);
+INSERT INTO pracovnici (rola, meno, priezvisko, pohlavie, rodne_cislo, email, mzda, id_hotel) VALUES('Šéfkuchár', 'Eva', 'Krajčírová', 'zena', 7192645, 'qebajaru@gmail.com', 710, 1);
+INSERT INTO pracovnici(rola, meno, priezvisko, pohlavie, rodne_cislo, email, mzda, id_hotel)  VALUES('Služba izby', 'Tomáš', 'Kozák', 'muz', 3729168, 'sajaxuma@icloud.com', 920, 7);
+INSERT INTO pracovnici(rola, meno, priezvisko, pohlavie, rodne_cislo, email, mzda, id_hotel)  VALUES('Recepčný', 'Lucia', 'Balážová', 'zena', 8491265, 'rivuhifu@live.com', 810, 4);
+INSERT INTO pracovnici(rola, meno, priezvisko, pohlavie, rodne_cislo, email, mzda, id_hotel)  VALUES('Služba izby', 'Peter', 'Krajčík', 'muz', 5189372, 'sijefele@mail.com', 920, 7);
+INSERT INTO pracovnici(rola, meno, priezvisko, pohlavie, rodne_cislo, email, mzda, id_hotel)  VALUES('Služba izby', 'Katarína', 'Varga', 'zena', 2637549, 'benitimu@outlook.com', 800, 3);
+INSERT INTO pracovnici(rola, meno, priezvisko, pohlavie, rodne_cislo, email, mzda, id_hotel)  VALUES('Recepčný', 'Samuel ', 'Balog', 'muz', 3952461, 'tabahoba@inbox.com', 1120, 7);
+INSERT INTO pracovnici(rola, meno, priezvisko, pohlavie, rodne_cislo, email, mzda, id_hotel)  VALUES('Recepčný', 'Viktória', 'Oravec', 'zena', 7251843, 'cosinugu@yahoo.com', 980, 5);
+INSERT INTO pracovnici(rola, meno, priezvisko, pohlavie, rodne_cislo, email, mzda, id_hotel)  VALUES('Šéfkuchár ', 'Adam', 'Kováč', 'muz', 1428563, 'fuxigula@protonmail.com', 1100, 7);
+INSERT INTO pracovnici(rola, meno, priezvisko, pohlavie, rodne_cislo, email, mzda, id_hotel)  VALUES('Služba izby', 'Simona', 'Hlaváčová', 'zena', 6874395, 'mixatoni@live.com', 920, 6);
+INSERT INTO pracovnici(rola, meno, priezvisko, pohlavie, rodne_cislo, email, mzda, id_hotel)  VALUES('Šéfkuchár ', 'Patrik', 'Šimončič', 'muz', 9237146, 'xonuroro@gmail.com', 1400, 6);
+
+--SELECT * FROM pracovnici;
+
+
+
+CREATE TABLE host
+(
+  rodne_cislo INT PRIMARY KEY ,
+  meno VARCHAR2(25) NOT NULL,
+  priezvisko VARCHAR2(25) NOT NULL,
+  pohlavie VARCHAR2(25),
+  email VARCHAR2(30),
+  ulica VARCHAR2(25),
+  krajina VARCHAR2(25),
+  miesto VARCHAR2(25), 
+  phone_cislo int NOT NULL
+);
+
+INSERT INTO host VALUES(7183921, 'Ivan', 'Petrov', 'muz', 'ivanpetrov@gmail.com', 'Hlavna', 'Slovensko',' Bratislava', 421123456789);
+INSERT INTO host VALUES(8912345, 'Elena', 'Sidorová', 'zena', 'elenasidorova@gmail.com', 'Hlavná', 'Slovensko', 'Košice', 421987654321);
+INSERT INTO host VALUES(6543210, 'Marek', 'Novák', 'muz', 'mareknovak@gmail.com', 'Mierová', 'Slovensko', 'Žilina', 421555555555);
+INSERT INTO host VALUES(1234567, 'Katarína', 'Horváthová', 'zena', 'katarinahorvathova@gmail.com', 'Červený Rak', 'Slovensko', 'Nitra', 421111111111);
+INSERT INTO host VALUES(9876543, 'Ján', 'Kováč', 'muz', 'jankovac@gmail.com', 'Trenčianska', 'Slovensko', 'Trenčín', 421222222222);
+INSERT INTO host VALUES(4567890, 'Veronika', 'Hrušovská', 'zena', 'veronikahrusovska@gmail.com', 'Komenského', 'Slovensko', 'Banská Bystrica', 421333333333);
+INSERT INTO host VALUES(2468101, 'Martin', 'Babiš', 'muz', 'martinbabic@mail.com', 'Námestie SNP', 'Slovensko', 'Žilina', 421444444444);
+INSERT INTO host VALUES(1357902, 'Lucia', 'Vargaová', 'zena', 'luciavargaova@mail.com', 'Svobody', 'Ukrajina', 'Symu', 421777777777);
+INSERT INTO host VALUES(3692580, 'Peter', 'Vlček', 'muz', 'petervlcek@gmail.com', 'Tatranská', 'Cesko', 'Praha', 421999999999);
+INSERT INTO host VALUES(8024671, 'Jana', 'Kubišová', 'zena', 'janakubisova@gmail.com', 'Kuricova', 'Slovensko', 'Prešov', 421666666666);
+
+--SELECT * FROM host;
+
+CREATE TABLE izba
+(
+  cislo_izby INT PRIMARY KEY,
+  obsadenost INT,
+  id_druh_izby INT,
+  id_hotel INT,
+  FOREIGN KEY (id_druh_izby) REFERENCES druh_izby(id_druh_izby),
+  FOREIGN KEY (id_hotel) REFERENCES hotel(id_hotel)
+);
+drop SEQUENCE sequence4;
+    
+CREATE SEQUENCE sequence4 START WITH 1 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER trigger4
+BEFORE INSERT ON izba
+FOR EACH ROW
+BEGIN
+  :NEW.cislo_izby:= sequence4.NEXTVAL;
+END;
+/
+    
+INSERT INTO izba (obsadenost, id_druh_izby, id_hotel) VALUES( 0, 2, 5);
+INSERT INTO izba (obsadenost, id_druh_izby, id_hotel) VALUES( 0, 1, 7);
+INSERT INTO izba (obsadenost, id_druh_izby, id_hotel) VALUES( 0, 3, 7);
+INSERT INTO izba (obsadenost, id_druh_izby, id_hotel) VALUES(1, 2, 1);
+INSERT INTO izba (obsadenost, id_druh_izby, id_hotel) VALUES( 0, 1, 3);
+INSERT INTO izba (obsadenost, id_druh_izby, id_hotel) VALUES(1, 4, 5);
+INSERT INTO izba (obsadenost, id_druh_izby, id_hotel) VALUES(1, 1, 6);
+INSERT INTO izba (obsadenost, id_druh_izby, id_hotel) VALUES(1, 1, 4);
+INSERT INTO izba(obsadenost, id_druh_izby, id_hotel)  VALUES(1, 4, 2);
+
+
+--SELECT * FROM izba;
+
+
+CREATE TABLE rezervacia
+(
+  id_rezervacii INT PRIMARY KEY,
+  datum_rezervacii DATE,
+  pocet_dospelych INT,
+  pocet_deti INT,
+  cislo_izby INT,
+  id_hotel INT,
+  FOREIGN KEY (cislo_izby) REFERENCES izba(cislo_izby),
+  FOREIGN KEY (Id_hotel) REFERENCES hotel(Id_hotel)
+);
+
+drop SEQUENCE sequence5;
+    
+CREATE SEQUENCE sequence5 START WITH 1 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER trigger5
+BEFORE INSERT ON rezervacia
+FOR EACH ROW
+BEGIN
+  :NEW.id_rezervacii:= sequence5.NEXTVAL;
+END;
+/
+    
+INSERT INTO rezervacia (datum_rezervacii,pocet_dospelych,pocet_deti,cislo_izby,id_hotel) VALUES('11-mar-2023', 2, 1, 9, 2);
+INSERT INTO rezervacia(datum_rezervacii,pocet_dospelych,pocet_deti,cislo_izby,id_hotel) VALUES('15-dec-2022', 1, 0, 8, 4 );
+INSERT INTO rezervacia (datum_rezervacii,pocet_dospelych,pocet_deti,cislo_izby,id_hotel)VALUES('7-apr-2024', 3, 0, 3, 7 );
+INSERT INTO rezervacia (datum_rezervacii,pocet_dospelych,pocet_deti,cislo_izby,id_hotel)VALUES('14-aug-2023', 1, 3, 4, 1 );
+INSERT INTO rezervacia (datum_rezervacii,pocet_dospelych,pocet_deti,cislo_izby,id_hotel)VALUES('1-may-2023', 2, 0, 6, 5);
+INSERT INTO rezervacia (datum_rezervacii,pocet_dospelych,pocet_deti,cislo_izby,id_hotel)VALUES('24-feb-2024', 4, 1, 9, 2 );
+INSERT INTO rezervacia (datum_rezervacii,pocet_dospelych,pocet_deti,cislo_izby,id_hotel)VALUES('7-jan-2023', 2, 2, 7, 6);
+    
+
+--SELECT * FROM rezervacia;
+
+
+CREATE TABLE host_rezervacia
+(
+	id_zarezervovanych INT PRIMARY KEY,
+  id_rezervacii INT,
+  rodne_cislo INT,
+
+  FOREIGN KEY (Id_rezervacii) REFERENCES rezervacia(id_rezervacii),
+  FOREIGN KEY (rodne_cislo) REFERENCES host(rodne_cislo)
+);
+drop SEQUENCE sequence6;
+    
+CREATE SEQUENCE sequence6 START WITH 1 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER trigger6
+BEFORE INSERT ON host_rezervacia
+FOR EACH ROW
+BEGIN
+  :NEW.id_zarezervovanych:= sequence6.NEXTVAL;
+END;
+/
+
+INSERT INTO host_rezervacia (id_rezervacii, rodne_cislo) VALUES(1, 7183921);
+INSERT INTO host_rezervacia  (id_rezervacii, rodne_cislo) VALUES(1, 6543210);
+INSERT INTO host_rezervacia  (id_rezervacii, rodne_cislo) VALUES(2, 8024671);
+INSERT INTO host_rezervacia  (id_rezervacii, rodne_cislo)VALUES(4, 8024671);
+INSERT INTO host_rezervacia  (id_rezervacii, rodne_cislo)VALUES(3, 4567890);
+INSERT INTO host_rezervacia  (id_rezervacii, rodne_cislo)VALUES(7, 1357902 );
+
+--SELECT * FROM host_rezervacia;
+
+
+
+-- pohľad s netriviálnym selectom1
+
+drop view hosti_s_detmi;
+
+CREATE VIEW hosti_s_detmi AS
+SELECT COUNT(*) AS pocet_hosti_s_detmi
+FROM rezervacia
+WHERE pocet_deti > 0;
+
+--select * from hosti_s_detmi;
+
+-- pohľad s netriviálnym selectom2
+
+drop view p_mzda;
+
+CREATE VIEW p_mzda AS
+SELECT id_pracovnika, rola, meno, priezvisko, mzda
+FROM pracovnici
+WHERE mzda > (SELECT AVG(mzda) FROM pracovnici);
+--select * from p_mzda;
+
+--  spojenie 3 tabuliek
+drop view spojenie1;
+create view spojenie1 as 
+
+SELECT r.id_rezervacii, r.datum_rezervacii, r.pocet_dospelych, r.pocet_deti, h.nazov, i.cislo_izby, i.id_druh_izby FROM rezervacia r
+
+INNER JOIN hotel h  ON r.id_hotel = h.id_hotel
+INNER JOIN izba i ON r.cislo_izby = i.cislo_izby
+ORDER BY r.id_rezervacii ASC;
+
+--select * from spojenie1;
+
+--   outer join
+
+
+drop view spojenie2;
+
+create view spojenie2 as 
+ SELECT pracovnici.id_pracovnika, pracovnici.rola, pracovnici.meno, 
+pracovnici.priezvisko, pracovnici.pohlavie, pracovnici.rodne_cislo, pracovnici.email, pracovnici.mzda, hotel.nazov FROM pracovnici 
+LEFT OUTER JOIN hotel on pracovnici.id_hotel=hotel.id_hotel ORDER BY 1; 
+--select * from spojenie2;
+
+--spojenie aspoň 2 tabuliek
+
+drop view spajanie3;
+
+create view spajanie3 as 
+
+SELECT i.cislo_izby, druh_izby.nazov FROM izba i
+JOIN druh_izby
+ON i.id_druh_izby=druh_izby.id_druh_izby;
+
+--select * from spajanie3;
+
+
+
+--pohľad1 s použitím agregačných funkcií
+drop view agreg1;
+
+create view agreg1 as
+SELECT cislo_izby as najpouz_izba
+FROM rezervacia
+GROUP BY cislo_izby 
+ORDER BY COUNT(*) DESC 
+FETCH FIRST 1 ROW ONLY;
+--select * from agreg1;
+
+
+--pohľad2 s použitím agregačných funkcií
+drop view agreg2;
+create view agreg2 as 
+
+SELECT hotel.nazov, AVG(pracovnici.mzda) AS priemerna_mzda
+FROM pracovnici
+JOIN hotel ON pracovnici.id_hotel = hotel.id_hotel
+GROUP BY hotel.nazov;
+
+--select * from agreg2; 
+
+
+--pohľad s použitím množinových operácií;
+
+drop view hosti_zamestnanci;
+
+create view  hosti_zamestnanci as 
+
+SELECT p.meno, p.priezvisko
+FROM pracovnici p
+JOIN hotel ON p.id_hotel = hotel.id_hotel
+WHERE hotel.nazov = 'Slovensko'
+
+UNION
+    
+SELECT h.meno, h.priezvisko
+FROM host h
+JOIN host_rezervacia ON h.rodne_cislo = host_rezervacia.rodne_cislo
+JOIN rezervacia ON host_rezervacia.id_rezervacii = rezervacia.id_rezervacii
+JOIN hotel ON rezervacia.id_hotel = hotel.id_hotel
+WHERE hotel.nazov = 'Slovensko'; 
+
+--select * from hosti_zamestnanci; 
+
+-- pohľad s použitím vnorených selektov;
+
+drop view total_rooms;
+
+create view total_rooms as 
+ 
+SELECT h.id_hotel, h.nazov, (
+  SELECT COUNT(*) FROM izba WHERE id_hotel = h.id_hotel
+) AS total_rooms
+FROM hotel h;
+
+
+--select * from total_rooms; 
+
+--pohľad s použitím vnorených selektov;
+
+drop view hosti_s_detmi;
+
+create view  hosti_s_detmi as 
+
+SELECT meno, priezvisko
+FROM host
+WHERE rodne_cislo IN (
+  SELECT rodne_cislo
+  FROM host_rezervacia
+  WHERE id_rezervacii IN(
+    
+    SELECT id_rezervacii
+    from rezervacia
+    	WHERE pocet_deti = 3
+    )
+);
+
+--select * from  hosti_s_detmi; 
